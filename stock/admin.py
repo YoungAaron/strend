@@ -7,7 +7,7 @@ class StockListAdmin(admin.ModelAdmin):
 
 @admin.register(IndexList)
 class IndexListAdmin(admin.ModelAdmin):
-    list_display = ('id', 'ts_code', 'name', 'market', 'publisher', 'index_type', 'category', 'base_date', 'base_point', 'list_date', 'weight_rule')
+    list_display = ('id', 'ts_code', 'name', 'market', 'publisher', 'index_type', 'category', 'base_date', 'base_point', 'list_date', 'weight_rule', 'fun_one', 'fun_two')
 
 @admin.register(Repurchase)
 class RepurchaseAdmin(admin.ModelAdmin):

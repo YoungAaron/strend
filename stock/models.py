@@ -75,6 +75,9 @@ class IndexList(models.Model):
     weight_rule = models.CharField(max_length=50, verbose_name='加权方式')
     desc = models.CharField(max_length=500, verbose_name='描述')
     exp_date = models.CharField(max_length=8, verbose_name='终止日期')
+    fun_one = models.CharField(max_length=1, default=0, verbose_name='市场对比')
+    fun_two = models.CharField(max_length=1, default=0, verbose_name='行业对比')
+    fun_thd = models.CharField(max_length=1, default=0, verbose_name='市值对比')
 
     class Meta:
         db_table = 'index_list'
@@ -106,10 +109,11 @@ class Repurchase(models.Model):
     class Meta:
         db_table = 'repurchase'
 
-def updateRepurchase():
+def updateRepurchase(date=None):
     # 获取
     try:
-        date = time.strftime('%Y%m%d', time.localtime())
+        if not date:
+            date = time.strftime('%Y%m%d', time.localtime())
         rlist = pro.repurchase(ann_date=date)
     except:
         send_mail('获取失败', '{}获取回购信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
@@ -127,8 +131,12 @@ def updateRepurchase():
             record = Repurchase(**record)
             record.save()
     # 自动化发送邮箱
-    title = '{}回购信息'.format(date)
-    content = ['{}在{}股东大会通过回购事项，回购数量{}，金额{}'.format(r['ts_code'], r['ann_date'], r['vol'], r['amount']) 
-               for r in rlist.iterrows()]
-    send_to = ['623522656@qq.com']
-    send_mail(title, content, '623522656@qq.com', send_to, fail_silently=False)
+    #title = '{}回购信息'.format(date)
+    #if not rlist.empty:
+    #    content = ['{}在{}股东大会通过回购事项，回购数量{}，金额{}'.format(r['ts_code'], r['ann_date'], r['vol'], r['amount']) 
+    #               for r in rlist.iterrows()]
+    #    content = '\n'.join(content)
+    #else:
+    #    content = '今日无回购事项'
+    #send_to = ['623522656@qq.com']
+    #send_mail(title, content, '623522656@qq.com', send_to, fail_silently=False)

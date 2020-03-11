@@ -16,9 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from cbond import views as cbond_view
+from stock import views as stock_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cbond/', cbond_view.CbondListView.as_view(), name='cbond_list'),
-    path('cbond/<int:pk>', cbond_view.CbondDetailView.as_view(), name='cbond_detail')
+    path('api/cbond/', cbond_view.CbondListView.as_view(), name='cbond_list'),
+    path('api/cbond/<int:pk>', cbond_view.CbondDetailView.as_view(), name='cbond_detail'),
+    path('api/repurchase/', stock_view.RepurchaseListView.as_view(), name='repurchase_list'),
+    path('api/repurchase/<int:pk>', stock_view.RepurchaseDetailView.as_view(), name='repurchase_detail'),
+    path('api/index/', stock_view.IndexListView.as_view(), name='index_list'),
+    path('api/kdata/index/<str:tscode>/<str:start>/', stock_view.KdataIndex.as_view(), name='kdata_index'),
 ]
