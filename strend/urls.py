@@ -26,4 +26,11 @@ urlpatterns = [
     path('api/repurchase/<int:pk>', stock_view.RepurchaseDetailView.as_view(), name='repurchase_detail'),
     path('api/index/', stock_view.IndexListView.as_view(), name='index_list'),
     path('api/kdata/index/<str:tscode>/<str:start>/', stock_view.KdataIndex.as_view(), name='kdata_index'),
+    path('api/kdata/index_global/<str:start>/<str:end>', stock_view.KdataIndexGlobal.as_view(), name='kdata_index_global'),
+    path('api/stock/', stock_view.StockListView.as_view(), name='stock_list'),
+    path('api/holdertrade/', stock_view.HolderTradeView.as_view(), name='holdertrade_list'),
+    path('api/income/', stock_view.IncomeListView.as_view(), name='income_list'),
+    path('api/express/', stock_view.ExpressListView.as_view(), name='express_list'),
+    path('api/fundlist/', stock_view.FundListView.as_view(), name='fund_list'),
+    path('api/fundstock/', stock_view.FundPortfolioListView.as_view(), name='fundstock'),
 ]
