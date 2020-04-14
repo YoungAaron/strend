@@ -315,6 +315,7 @@ class Income(models.Model):
 
     class Meta:
         db_table = 'income'
+        unique_together = [['ts_code', 'end_date']]
 
 def update_income(date=None):
     if not date:
@@ -322,11 +323,14 @@ def update_income(date=None):
     for tc in StockList.objects.all():
         try:
             rlist = pro.income(ann_date=date, ts_code=tc.ts_code)
+            time.sleep(0.33)
         except:
             send_mail('获取失败', '{}获取利润表信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
             rlist = pd.DataFrame()
         # 整理
         rlist = rlist.replace(np.nan, 0)
+        if rlist.shape[0] > 1:
+            rlist = rlist[0:1]
         if not rlist.empty:
             for idx,row in rlist.iterrows():
                 record = row.to_dict()
@@ -354,6 +358,7 @@ class Express(models.Model):
     
     class Meta:
         db_table = 'express'
+        unique_together = [['ts_code', 'end_date']]
 
 def update_express(date=None):
     try:
