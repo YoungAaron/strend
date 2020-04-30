@@ -127,27 +127,16 @@ def updateRepurchase(date=None):
             date = time.strftime('%Y%m%d', time.localtime())
         rlist = pro.repurchase(ann_date=date)
     except:
-        send_mail('获取失败', '{}获取回购信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
         rlist = pd.DataFrame()
     # 整理
     rlist = rlist.replace(np.nan, 0)
-    rlist = rlist[rlist['proc'] == '股东大会通过']
+    rlist = rlist[rlist['amount'] > 30000000]
     # 入库
     if not rlist.empty:
         for idx,row in rlist.iterrows():
             record = row.to_dict()
             record = Repurchase(**record)
             record.save()
-    # 自动化发送邮箱
-    #title = '{}回购信息'.format(date)
-    #if not rlist.empty:
-    #    content = ['{}在{}股东大会通过回购事项，回购数量{}，金额{}'.format(r['ts_code'], r['ann_date'], r['vol'], r['amount']) 
-    #               for r in rlist.iterrows()]
-    #    content = '\n'.join(content)
-    #else:
-    #    content = '今日无回购事项'
-    #send_to = ['623522656@qq.com']
-    #send_mail(title, content, '623522656@qq.com', send_to, fail_silently=False)
 
 
 # 股东增减持
@@ -155,7 +144,7 @@ class HolderTrade(models.Model):
     id = models.AutoField(primary_key=True)
     ts_code = models.CharField(max_length=15, verbose_name='TS代码')
     ann_date = models.CharField(max_length=8, verbose_name='公告日期')
-    holder_name = models.CharField(max_length=60, verbose_name='股东名称')
+    holder_name = models.CharField(max_length=500, verbose_name='股东名称')
     holder_type = models.CharField(max_length=3, verbose_name='股东类型G高管P个人C公司')
     in_de = models.CharField(max_length=3, verbose_name='类型')
     change_vol = models.FloatField(verbose_name='变动数量')
@@ -176,11 +165,15 @@ def update_holdertrade(date=None):
             date = time.strftime('%Y%m%d', time.localtime())
         rlist = pro.stk_holdertrade(ann_date=date)
     except:
-        send_mail('获取失败', '{}获取股东增减持信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
         rlist = pd.DataFrame()
     # 整理
-    rlist = rlist.replace(np.nan, 0)
     if not rlist.empty:
+        rlist = rlist.replace(np.nan, 0)
+        glist = rlist.groupby(['ts_code', 'ann_date', 'holder_name', 'holder_type', 'in_de']) # 单人多次增减持数据合并
+        gsum = glist[['change_ratio', 'change_vol']].sum().reset_index()
+        gave = glist[['after_share', 'after_ratio', 'avg_price', 'total_share']].mean().reset_index()
+        gave = gave[['after_share', 'after_ratio', 'avg_price', 'total_share']]
+        rlist = pd.concat([gsum, gave], axis=1)
         for idx,row in rlist.iterrows():
             record = row.to_dict()
             holdertrade = HolderTrade(**record)
@@ -325,7 +318,6 @@ def update_income(date=None):
             rlist = pro.income(ann_date=date, ts_code=tc.ts_code)
             time.sleep(0.33)
         except:
-            send_mail('获取失败', '{}获取利润表信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
             rlist = pd.DataFrame()
         # 整理
         rlist = rlist.replace(np.nan, 0)
@@ -366,7 +358,6 @@ def update_express(date=None):
             date = time.strftime('%Y%m%d', time.localtime())
         rlist = pro.express(ann_date=date)
     except:
-        send_mail('获取失败', '{}获取业绩快报信息失败'.format(date), '623522656@qq.com', ['623522656@qq.com'], fail_silently=False)
         rlist = pd.DataFrame()
     # 整理
     rlist = rlist.replace(np.nan, 0)
